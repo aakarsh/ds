@@ -5,9 +5,8 @@
 struct Bracket {
   Bracket(char type, int position):
     type(type),
-    position(position)
-  {}
-
+    position(position) {}
+  
   bool match(char c) {
     if (type == '[' && c == ']')
       return true;
@@ -17,7 +16,7 @@ struct Bracket {
       return true;
     return false;
   }
-
+  
   char type;
   int position;
 };
@@ -41,6 +40,9 @@ int main() {
       } else {
         if(opening_brackets_stack.top().match(next)) {
           opening_brackets_stack.pop();
+        } else {
+          std::cout<<position+1<<std::endl;
+          return 0;
         }
       }
     }
