@@ -8,7 +8,7 @@ struct Bracket {
     position(position)
   {}
 
-  bool Matchc(char c) {
+  bool match(char c) {
     if (type == '[' && c == ']')
       return true;
     if (type == '{' && c == '}')
@@ -22,6 +22,7 @@ struct Bracket {
   int position;
 };
 
+
 int main() {
   std::string text;
   getline(std::cin, text);
@@ -32,16 +33,15 @@ int main() {
     char next = text[position];
 
     if (next == '(' || next == '[' || next == '{') {
-      
       opening_brackets_stack.push(Bracket(next,position)); 
-    }
-
-    if (next == ')' || next == ']' || next == '}') {
-      Bracket br = opening_brackets_stack.top();
-      if(br.Matchc(next)) {
-        opening_brackets_stack.pop();
-      } else{
-        break; 
+    } else if (next == ')' || next == ']' || next == '}') {
+      if(opening_brackets_stack.empty()) {
+        std::cout<<position+1<<std::endl;
+        return 0;
+      } else {
+        if(opening_brackets_stack.top().match(next)) {
+          opening_brackets_stack.pop();
+        }
       }
     }
   }
@@ -52,5 +52,6 @@ int main() {
     Bracket br = opening_brackets_stack.top();
     std::cout<<br.position+1<<std::endl;
   }
+  
   return 0;
 }
