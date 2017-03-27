@@ -3,43 +3,54 @@
 #include <string>
 
 struct Bracket {
-    Bracket(char type, int position):
-        type(type),
-        position(position)
-    {}
+  Bracket(char type, int position):
+    type(type),
+    position(position)
+  {}
 
-    bool Matchc(char c) {
-        if (type == '[' && c == ']')
-            return true;
-        if (type == '{' && c == '}')
-            return true;
-        if (type == '(' && c == ')')
-            return true;
-        return false;
-    }
+  bool Matchc(char c) {
+    if (type == '[' && c == ']')
+      return true;
+    if (type == '{' && c == '}')
+      return true;
+    if (type == '(' && c == ')')
+      return true;
+    return false;
+  }
 
-    char type;
-    int position;
+  char type;
+  int position;
 };
 
 int main() {
-    std::string text;
-    getline(std::cin, text);
+  std::string text;
+  getline(std::cin, text);
 
-    std::stack <Bracket> opening_brackets_stack;
-    for (int position = 0; position < text.length(); ++position) {
-        char next = text[position];
+  std::stack <Bracket> opening_brackets_stack;
+  
+  for (int position = 0; position < text.length(); ++position) {
+    char next = text[position];
 
-        if (next == '(' || next == '[' || next == '{') {
-            // Process opening bracket, write your code here
-        }
-
-        if (next == ')' || next == ']' || next == '}') {
-            // Process closing bracket, write your code here
-        }
+    if (next == '(' || next == '[' || next == '{') {
+      
+      opening_brackets_stack.push(Bracket(next,position)); 
     }
 
-    // Printing answer, write your code here
+    if (next == ')' || next == ']' || next == '}') {
+      Bracket br = opening_brackets_stack.top();
+      if(br.Matchc(next)) {
+        opening_brackets_stack.pop();
+      } else{
+        break; 
+      }
+    }
+  }
 
-    return 0;
+  if(opening_brackets_stack.empty()) {
+    std::cout<<"Success"<<std::endl;
+  } else {
+    Bracket br = opening_brackets_stack.top();
+    std::cout<<br.position+1<<std::endl;
+  }
+  return 0;
 }
