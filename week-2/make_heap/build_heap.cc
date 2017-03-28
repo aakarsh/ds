@@ -29,22 +29,34 @@ class HeapBuilder {
       cin >> data_[i];
   }
 
+  void sift_down(int i,vector<pair<int,int>> & swaps) {
+    int min_index = i;
+    int size = this->data_.size();
+    int left  = 2*i+1;
+    if(left < size && this->data_[left]  < this->data_[min_index]){
+      min_index = left;
+    }
+      
+    int right = left+1;
+    if(right < size && this->data_[right]  < this->data_[min_index]){
+      min_index = right;
+    }
+    
+    if(i != min_index) {
+      std::swap(data_[min_index],data_[i]);
+      swaps.push_back(make_pair(min_index,i));
+      sift_down(min_index,swaps);
+    }
+  }
+  
+
   void GenerateSwaps() {
     swaps_.clear();
-    // The following naive implementation just sorts 
-    // the given sequence using selection sort algorithm
-    // and saves the resulting sequence of swaps.
-    // This turns the given array into a heap, 
-    // but in the worst case gives a quadratic number of swaps.
-    //
-    // TODO: replace by a more efficient implementation
-    for (int i = 0; i < data_.size(); ++i)
-      for (int j = i + 1; j < data_.size(); ++j) {
-        if (data_[i] > data_[j]) {
-          swap(data_[i], data_[j]);
-          swaps_.push_back(make_pair(i, j));
-        }
-      }
+
+    int n = data_.size();
+    for(int i = n/2 ; i >=0 ; i--){
+      sift_down(i,swaps_);
+    }
   }
 
  public:
