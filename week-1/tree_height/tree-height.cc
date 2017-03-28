@@ -32,7 +32,7 @@ public:
     parent = theParent;
     parent->children.push_back(this);
   }
-  bool is_leaf() { this->children.empty(); }
+  bool is_leaf() { return this->children.empty(); }
 };
 
 
@@ -61,7 +61,8 @@ int main_with_large_stack_space() {
     
     nodes[child_index].key = child_index;
   }
-  int maxHeight = 0;
+  
+  long maxHeight = 0;
   
   /**
    * Instead we can start from root and do a depth first traversal and
@@ -73,38 +74,30 @@ int main_with_large_stack_space() {
   while( !stacked.empty() ) {
     // need reference to top to modify processed child index 
     pair<long,Node*> *cur  = &(stacked.top());
-    long child_pos = cur->first;
     Node* node = cur->second;
-    
-    if(debug) {
-      std::cerr<<"Stack top ["<<node<<"] num children "<<node->children.size()<<"child pos ["<<child_pos<<"]"<<std::endl;
-    }
-    
-    if( node->children.size() > 0 ) {
+    long child_position = cur->first;
+
+    if (node->is_leaf()) {
+      maxHeight = std::max((long)stacked.size() , maxHeight);
+      if(debug)
+        std::cerr<<"height : "<<maxHeight<<" stack "<<stacked.size()<<std::endl;
       
-      if( child_pos < node->children.size() ) {
-        // better off with node child iterator? 
-        Node* child = node->children[child_pos];
-        
+    } else {
+      // better off with node child iterator? 
+      if( child_position < node->children.size() ) {
+        Node* child = node->children[child_position];
         stacked.push(std::make_pair(0,child));
-        if(debug)
-          std::cerr<<"pushing "<<child->key <<std::endl;
+        
+        if(debug) std::cerr<<"pushing "<<child->key <<std::endl;
         
         // increment child position,ugly! 
         cur->first+=1;
-        
+        // continue to process newly pushed child 
         continue;
       }
-      
-    } else if (node->is_leaf()) {
-      maxHeight = std::max((int)stacked.size() , maxHeight);
-      if(debug)
-        std::cerr<<"height : "<<maxHeight<<" stack "<<stacked.size()<<std::endl;
     }
-    
     stacked.pop();
   }
-  
   std::cout << maxHeight << std::endl;
   return 0;
 }
