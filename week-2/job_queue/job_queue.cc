@@ -37,7 +37,7 @@ class JobQueue {
   class pair_compare {
   public:
      bool operator()(const pair<long,long> & w1 , const pair<long,long> & w2 ) {
-      return w1.second > w2.second;
+       return w1.second == w2.second ? w1.first > w2.first : w1.second > w2.second;
     }
   };
 
