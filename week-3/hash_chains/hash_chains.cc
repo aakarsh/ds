@@ -29,7 +29,9 @@ struct Query {
 
 class QueryProcessor {
   
-  int bucket_count;
+  long long bucket_count = 0;
+
+  long long num_keys = 0;
   
   // hash table as a vector of linked lists 
   vector<list<string>> * table;
@@ -47,18 +49,12 @@ class QueryProcessor {
   long long hash_func(const string& s) const {
     static const long long multiplier = 263;
     static const long long prime = 1000000007;
-    
     unsigned long long hash = 0;
-    
     for (long long i = static_cast<long long> (s.size()) - 1; i >= 0; --i)
       hash = (hash * multiplier + s[i]) % prime;
-    
     return hash % bucket_count;
   }
 
-  inline long long idx(const string & str) {
-    return static_cast<long long>(hash_func(str));
-  }
   
 private:
   
@@ -68,22 +64,26 @@ private:
     return i;
   }
 
-  void resize(long long sz) {
+  void resize() {
     vector<list<string>>& hash_table = *table; 
+    bucket_count *= 2;
     
-    if(bucket_count < sz)
-      bucket_count = next_bucket_count(sz); 
-    
-    vector<list<string>>* new_table = new vector<list<string>>(bucket_count,list<string>());
-    
-    for(auto const & chain : hash_table) 
-      for(auto const & e  : chain) 
-        (*new_table)[idx(e)].push_front(e); 
+    if(debug)
+      std::cerr<<"resizing:"<<bucket_count<<std::endl;
         
+    vector<list<string>>* new_table =
+      new vector<list<string>>(bucket_count,list<string>());
+    
+    for(const auto & chain : hash_table) 
+      for(const auto & e  : chain) {
+        if(debug)
+          std::cerr<<"rehashing "<<e<<std::endl;
+        (*new_table)[idx(e)].push_front(e); 
+      }
+    
     delete table;
     this->table = new_table;
   }
-
   
 public:
   
@@ -95,19 +95,30 @@ public:
   ~QueryProcessor(){
     delete table;
   }
+  
+  inline long long idx(const string & str) {
+    return static_cast<long long>(hash_func(str));
+  }
 
   /**
    * Add str to the hash table. if table is insufficient size.
    * resize it.
    */
   void add_string(const string & str) {
-    vector<list<string>>& hash_table = *table; 
     long long id = idx(str);
+    double  load_factor = (num_keys*1.0)/bucket_count; 
     
-    if(id > bucket_count)
-      resize(id);
+    if(debug)
+      std::cerr<<"load_factor:"<<load_factor<<"["<<num_keys<<","<<bucket_count<<"]"<<std::endl;
     
-    hash_table[id].push_front(str);
+    if(load_factor > .9)
+      resize();
+    
+    vector<list<string>>& hash_table = *table; 
+    if(!find_string(str)) {
+      hash_table[id].push_front(str);
+      num_keys++;
+    }
   }
   
   /**
@@ -116,10 +127,8 @@ public:
   inline bool find_string(const string & str) {
     vector<list<string>>& hash_table = *table; 
     list<string>& chain = hash_table[idx(str)];
-    
     for(auto const & elem : chain)
       if(elem == str) return true;
-    
     return false;
   }
   
@@ -130,8 +139,14 @@ public:
     vector<list<string>>& hash_table = *table; 
     list<string>& chain = hash_table[idx(str)];
     for(auto it = chain.begin(); it!=chain.end();){
-      (str == *it) ? chain.erase(it++) : it++;
+      if(str == *it) {
+        chain.erase(it++) ;
+        num_keys--;
+      } else {
+          it++;
+      }
     }
+    num_keys--;
   }
   
   Query readQuery() const {
@@ -175,24 +190,28 @@ string random_string(int len) {
     "0123456789"
     "abcdefghijklmnopqrstuvwxyz"
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
   for(int i = 0 ;i< len; i++)
     retval[i] = char_set[rand() % (sizeof(char_set)-1)];
   return retval;
 }
 
-
 void test() {
+  
   QueryProcessor proc(10);
   std::map<string,bool> map;
   
-  for(int i = 0 ; i < 50; i++) {
-    string r =random_string(10); 
+  for(long long i = 0 ; i < 10000; i++) {
+    string r = random_string(100); 
     map[r] = true; 
     proc.add_string(r);
   }
   
+  int i = 0; 
   for(const auto& entry : map) {
+    
+    if(debug)
+      std::cerr<<"checking "<<i++<<" "<<entry.first<<"("<<proc.idx(entry.first)<<")"<<std::endl;
+    
     assert(proc.find_string(entry.first));
     proc.delete_string(entry.first);
     assert(!proc.find_string(entry.first));
@@ -202,6 +221,10 @@ void test() {
 
 int main() {
   std::ios_base::sync_with_stdio(false);
+  if(debug) {
+    test();
+    return 0;
+  }
   int bucket_count;
   cin >> bucket_count;
   QueryProcessor proc(bucket_count);
