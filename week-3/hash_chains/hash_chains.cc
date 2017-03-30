@@ -146,7 +146,6 @@ public:
           it++;
       }
     }
-    num_keys--;
   }
   
   Query readQuery() const {
@@ -192,6 +191,7 @@ string random_string(int len) {
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   for(int i = 0 ;i< len; i++)
     retval[i] = char_set[rand() % (sizeof(char_set)-1)];
+  
   return retval;
 }
 
@@ -200,18 +200,16 @@ void test() {
   QueryProcessor proc(10);
   std::map<string,bool> map;
   
-  for(long long i = 0 ; i < 10000; i++) {
-    string r = random_string(100); 
+  for(long long i = 0 ; i < 1000000; i++) {
+    string r = random_string(50); 
     map[r] = true; 
     proc.add_string(r);
   }
   
   int i = 0; 
   for(const auto& entry : map) {
-    
     if(debug)
       std::cerr<<"checking "<<i++<<" "<<entry.first<<"("<<proc.idx(entry.first)<<")"<<std::endl;
-    
     assert(proc.find_string(entry.first));
     proc.delete_string(entry.first);
     assert(!proc.find_string(entry.first));
