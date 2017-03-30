@@ -107,7 +107,10 @@ public:
   
   inline bool find(const string & str) {
     vector<list<string>>& hash_table = *table; 
-    return !(hash_table[idx(str)].empty());
+    list<string>& chain = hash_table[idx(str)];
+    for(auto const & elem : chain)
+      if(elem == str) return true;
+    return false;
   }
   
   void processQuery(const Query& query) {
@@ -117,9 +120,7 @@ public:
       list<string>& chain = hash_table[query.ind];
       for(auto const & elem : chain)
         std::cout<<elem<<" ";
-      
       std::cout <<std::endl;
-      
     } else {
       
       if (query.type == "find") {
@@ -128,11 +129,10 @@ public:
         add_string(query.s);
       } else if (query.type == "del") {
         list<string>& chain = hash_table[idx(query.s)];
-        
         for(auto it = chain.begin(); it!=chain.end();){
-          (query.s == *it) ? chain.erase(it++) : it++; 
+          (query.s == *it) ? chain.erase(it++) : it++;
         }
-        
+ 
       }
     }
   }
