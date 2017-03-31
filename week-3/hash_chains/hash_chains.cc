@@ -129,8 +129,8 @@ public:
     double  load_factor = (num_keys*1.0)/bucket_count; 
     if(debug)
       std::cerr<<"load_factor:"<<load_factor<<"["<<num_keys<<","<<bucket_count<<"]"<<std::endl;
-    if(load_factor > .9)
-      resize();
+    //if(load_factor > .9)
+    // resize();
     
     vector<list<string>>& hash_table = *table;
     // compute id based on new resized value
