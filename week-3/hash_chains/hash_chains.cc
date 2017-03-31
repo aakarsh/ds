@@ -125,17 +125,19 @@ public:
   void add_string(const string & str) {
     if(debug)
       print_contents();
-    long long id = idx(str);
-    
-    if(debug)
-      std::cerr<<"hash:"<<str<<" key:"<<id<< std::endl;
     
     double  load_factor = (num_keys*1.0)/bucket_count; 
     if(debug)
       std::cerr<<"load_factor:"<<load_factor<<"["<<num_keys<<","<<bucket_count<<"]"<<std::endl;
     if(load_factor > .9)
       resize();
-    vector<list<string>>& hash_table = *table; 
+    
+    vector<list<string>>& hash_table = *table;
+    // compute id based on new resized value
+    long long id = idx(str);
+    if(debug)
+      std::cerr<<"hash:"<<str<<" key:"<<id<< std::endl;
+    
     if(!find_string(str)) {
       hash_table[id].push_front(str);
       num_keys++;
@@ -246,10 +248,10 @@ void test() {
 
 int main() {
   std::ios_base::sync_with_stdio(false);
-  //if(debug) {
-  //  test();
-  //  return 0;
-  //}
+  if(debug) {
+   test();
+   return 0;
+  }
   int bucket_count;
   cin >> bucket_count;
   QueryProcessor proc(bucket_count);
