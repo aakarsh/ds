@@ -17,6 +17,7 @@ class TreeOrders {
   vector <int> right;
 
 public:
+
   void read() {
     cin >> n;
     key.resize(n);
@@ -27,30 +28,57 @@ public:
     }
   }
 
-
   vector <int> in_order() {
     vector<int> result;
-    // Finish the implementation
-    // You may need to add a new recursive method to do that
-
+    in_order(0,result);
     return result;
+  }
+
+  void in_order(int root, vector <int> & result) {
+    int l = left[root];
+    int r = right[root];
+    if(l != -1)
+      in_order(l,result);
+    result.push_back(key[root]);
+    if(r != -1)
+      in_order(r,result);
   }
 
   vector <int> pre_order() {
     vector<int> result;    
     // Finish the implementation
     // You may need to add a new recursive method to do that
-    
+    pre_order(0,result);
     return result;
+  }
+  
+  void pre_order(int root, vector <int> & result) {
+    int l = left[root];
+    int r = right[root];
+    result.push_back(key[root]);
+    
+    if(l != -1)
+      pre_order(l,result);
+    if(r != -1)
+      pre_order(r,result);
   }
 
   vector <int> post_order() {
     vector<int> result;
-    // Finish the implementation
-    // You may need to add a new recursive method to do that
-    
+    post_order(0,result);
     return result;
   }
+  
+  void post_order(int root, vector <int> & result) {
+    int l = left[root];
+    int r = right[root];
+    if(l != -1)
+      post_order(l,result);
+    if(r != -1)
+      post_order(r,result);
+    result.push_back(key[root]);
+  }
+  
 };
 
 void print(vector <int> a) {
