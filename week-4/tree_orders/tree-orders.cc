@@ -34,6 +34,9 @@ public:
     return result;
   }
 
+  /** 
+   * Will produce search tree in sorted order.
+   */
   void in_order(int root, vector <int> & result) {
     int l = left[root];
     int r = right[root];
