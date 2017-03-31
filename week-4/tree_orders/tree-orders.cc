@@ -46,8 +46,6 @@ public:
 
   vector <int> pre_order() {
     vector<int> result;    
-    // Finish the implementation
-    // You may need to add a new recursive method to do that
     pre_order(0,result);
     return result;
   }
